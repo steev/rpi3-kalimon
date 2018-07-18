@@ -34,21 +34,12 @@ if [ -f "${OUTPUTFILE}" ]; then
     test -d $dir || mkdir -p $dir
     sudo mount -o offset=`expr $o_linux \* 512`,loop $image $dir
     sudo mount -o offset=`expr $o_boot  \* 512`,loop $image $dir/boot
-    sudo mount -t proc proc $dir/proc
-    sudo mount -o bind /dev/ $dir/dev/
-    sudo mount -o bind /dev/pts $dir/dev/pts
-
-    cp /usr/bin/qemu-arm-static $dir/usr/bin/
-    chmod +755 $dir/usr/bin/qemu-arm-static
-
-    sudo chroot $dir /bin/bash
+    systemd-nspawn -D $dir /bin/bash
+    
 
     echo "[+] Unmounting"
     sleep 10
     sudo umount $dir/boot
-    sudo umount -l $dir/proc
-    sudo umount -l $dir/dev/
-    sudo umount -l $dir/dev/pts
     sudo umount $dir
     rm -rf $dir
 else
